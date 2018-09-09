@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-load File.expand_path("../with_rubygems", __FILE__) if ENV["RGV"]
+load File.expand_path("../with_rubygems", __FILE__)
 
 require "rubygems"
 

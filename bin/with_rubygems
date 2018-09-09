@@ -12,7 +12,7 @@ module WithRubygems
   module_function :run
 end
 
-version = ENV.delete("RGV")
+version = ENV["RGV"] || "master"
 rubygems_path = Pathname.new(__FILE__).join("../../tmp/rubygems").expand_path
 unless rubygems_path.directory?
   rubygems_path.parent.mkpath unless rubygems_path.directory?
@@ -26,9 +26,7 @@ end if version
 rubygems_lib = rubygems_path + "lib"
 ENV["RUBYOPT"] = %(-I#{rubygems_lib} #{ENV["RUBYOPT"]})
 
-if $0 != __FILE__
-  ARGV.unshift($0)
-elsif cmd = ARGV.first
+if $0 == __FILE__ && cmd = ARGV.first
   possible_dirs = [
     Pathname.new(__FILE__) + "..",
     Pathname.new(__FILE__) + "../../exe",
@@ -38,6 +36,6 @@ elsif cmd = ARGV.first
     dir.join(cmd).expand_path
   end.find(&:file?)
   ARGV[0] = cmd.to_s if cmd
-end
 
-exec(*ARGV)
+  exec(*ARGV)
+end
