@@ -147,7 +147,7 @@ begin
         desc "Run specs with RubyGems #{rg}"
         RSpec::Core::RakeTask.new(rg) do |t|
           t.rspec_opts = %w[--format progress --color]
-          t.ruby_opts  = %w[-w]
+          t.ruby_opts  = %W[-w #{rubyopt}]
         end
 
         # Create tasks like spec:rubygems:v1.8.3:sudo to run the sudo specs
