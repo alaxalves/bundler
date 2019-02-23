@@ -84,21 +84,30 @@ namespace :spec do
   end
 end
 
-begin
+def rspec_task(name, description)
   rspec = bundler_spec.development_dependencies.find {|d| d.name == "rspec" }
   gem "rspec", rspec.requirement.to_s
   require "rspec/core/rake_task"
 
-  desc "Run specs"
-  RSpec::Core::RakeTask.new(:spec) do |t|
+  desc description
+  RSpec::Core::RakeTask.new(name) do |t|
     t.ruby_opts = begin
                     libs = $LOAD_PATH.grep(
                       /#{File::SEPARATOR}rspec-(core|support|mocks)[^#{File::SEPARATOR}]*#{File::SEPARATOR}lib/
                     ).uniq
 
-                    "-I#{libs.join(File::PATH_SEPARATOR)}"
+                    "-w -I#{libs.join(File::PATH_SEPARATOR)}"
                   end
   end
+rescue LoadError
+  desc description
+  task name do
+    abort "Run `rake spec:deps` to be able to run the specs"
+  end
+end
+
+begin
+  rspec_task("spec", "Run specs")
 
   require "rubocop/rake_task"
   rubocop = RuboCop::RakeTask.new
@@ -140,15 +149,12 @@ begin
     # RubyGems specs by version
     namespace :rubygems do
       rubyopt = ENV["RUBYOPT"]
+
       # When editing this list, also edit .travis.yml!
       branches = %w[master]
       releases = %w[v2.5.2 v2.6.14 v2.7.8 v3.0.2]
       (branches + releases).each do |rg|
-        desc "Run specs with RubyGems #{rg}"
-        RSpec::Core::RakeTask.new(rg) do |t|
-          t.rspec_opts = %w[--format progress --color]
-          t.ruby_opts  = %W[-w #{rubyopt}]
-        end
+        rspec_task(rg, "Run specs with RubyGems #{rg}")
 
         # Create tasks like spec:rubygems:v1.8.3:sudo to run the sudo specs
         namespace rg do
@@ -185,11 +191,7 @@ begin
         task "rubygems:all" => rg
       end
 
-      desc "Run specs under a RubyGems checkout (set RG=path)"
-      RSpec::Core::RakeTask.new("co") do |t|
-        t.rspec_opts = %w[--format documentation --color]
-        t.ruby_opts  = %w[-w]
-      end
+      rspec_task("co", "Run specs under a RubyGems checkout (set RG=path)")
 
       task "setup_co" do
         rg = File.expand_path ENV["RG"]
@@ -237,10 +239,6 @@ begin
     end
   end
 rescue LoadError
-  task :spec do
-    abort "Run `rake spec:deps` to be able to run the specs"
-  end
-
   task :rubocop do
     abort "Run `rake spec:deps` to be able to run rubocop"
   end
