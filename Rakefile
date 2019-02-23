@@ -90,7 +90,15 @@ begin
   require "rspec/core/rake_task"
 
   desc "Run specs"
-  RSpec::Core::RakeTask.new
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.ruby_opts = begin
+                    libs = $LOAD_PATH.grep(
+                      /#{File::SEPARATOR}rspec-(core|support|mocks)[^#{File::SEPARATOR}]*#{File::SEPARATOR}lib/
+                    ).uniq
+
+                    "-I#{libs.join(File::PATH_SEPARATOR)}"
+                  end
+  end
 
   require "rubocop/rake_task"
   rubocop = RuboCop::RakeTask.new
