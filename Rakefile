@@ -86,7 +86,8 @@ end
 
 def rspec_task(name, description)
   rspec = bundler_spec.development_dependencies.find {|d| d.name == "rspec" }
-  gem "rspec", rspec.requirement.to_s
+  rspec_requirement = rspec.requirement.to_s
+  gem "rspec", rspec_requirement
   require "rspec/core/rake_task"
 
   desc description
@@ -102,7 +103,7 @@ def rspec_task(name, description)
 rescue LoadError
   desc description
   task name do
-    abort "Run `rake spec:deps` to be able to run the specs"
+    abort "Run `gem install rspec:'#{rspec_requirement}'` to be able to run the specs"
   end
 end
 
