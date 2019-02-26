@@ -88,17 +88,10 @@ def rspec_task(name, description)
   rspec = bundler_spec.development_dependencies.find {|d| d.name == "rspec" }
   rspec_requirement = rspec.requirement.to_s
   gem "rspec", rspec_requirement
-  require "rspec/core/rake_task"
 
   desc description
-  RSpec::Core::RakeTask.new(name) do |t|
-    t.ruby_opts = begin
-                    libs = $LOAD_PATH.grep(
-                      /#{File::SEPARATOR}rspec-(core|support|mocks)[^#{File::SEPARATOR}]*#{File::SEPARATOR}lib/
-                    ).uniq
-
-                    "-w -I#{libs.join(File::PATH_SEPARATOR)}"
-                  end
+  task name do
+    sh("bin/rspec")
   end
 rescue LoadError
   desc description
