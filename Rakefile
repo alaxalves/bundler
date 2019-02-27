@@ -182,6 +182,8 @@ namespace :spec do
         end
 
         puts "Checked out rubygems '#{rg}' at #{hash}"
+        ENV["RUBYOPT"] = "-I#{File.join(RUBYGEMS_REPO, "lib")} #{rubyopt}"
+        puts "RUBYOPT=#{ENV["RUBYOPT"]}"
       end
 
       task rg => ["clone_rubygems_#{rg}"]
@@ -200,9 +202,9 @@ namespace :spec do
     task "rubygems:all" => "co"
   end
 
-  desc "Run the tests on Travis CI against a RubyGem version"
+  desc "Run the tests on Travis CI against a RubyGem version (using ENV['RGV'])"
   task :travis do
-    rg = ENV["RGV"] || "master"
+    rg = ENV["RGV"] || raise("RubyGems version is required on Travis!")
 
     # disallow making network requests on CI
     ENV["BUNDLER_SPEC_PRE_RECORDED"] = "TRUE"
