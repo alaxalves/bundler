@@ -78,13 +78,11 @@ module Bundler
 
     def lock_sources
       if Bundler.feature_flag.lockfile_uses_separate_rubygems_sources?
-        [[default_source], @rubygems_sources, git_sources, path_sources, plugin_sources].map do |sources|
-          sources.sort_by(&:to_s)
-        end.flatten(1)
+        [[default_source], @rubygems_sources, git_sources, path_sources, plugin_sources].flatten(1)
       else
-        lock_sources = (path_sources + git_sources + plugin_sources).sort_by(&:to_s)
+        lock_sources = (path_sources + git_sources + plugin_sources)
         lock_sources << combine_rubygems_sources
-      end
+      end.sort_by(&:to_s)
     end
 
     # Returns true if there are changes
